@@ -10,143 +10,146 @@ require("bcryptjs");
 const jwt =
 require("jsonwebtoken");
 
-const generateToken = (id)=>{
+const generateToken = (id) => {
 
-return jwt.sign(
+  return jwt.sign(
 
-{ id },
+    { id },
 
-process.env.JWT_SECRET,
+    process.env.JWT_SECRET,
 
-{
+    {
+      expiresIn: "30d"
+    }
 
-expiresIn:"30d"
-
-}
-
-);
+  );
 
 };
 
 const registerUser =
-asyncHandler(async(req,res)=>{
+asyncHandler(async (req, res) => {
 
-const {
+  const {
 
-name,
-email,
-password
+    name,
+    email,
+    password
 
-}=req.body;
+  } = req.body;
 
-if(
-!name ||
-!email ||
-!password
-){
+  if (
 
-res.status(400);
+    !name ||
+    !email ||
+    !password
 
-throw new Error(
-"Please add all fields"
-);
+  ) {
 
-}
+    res.status(400);
 
-const userExists =
-await User.findOne({
-email
-});
+    throw new Error(
+      "Please add all fields"
+    );
 
-if(userExists){
+  }
 
-res.status(400);
+  const userExists =
+    await User.findOne({
+      email
+    });
 
-throw new Error(
-"User already exists"
-);
+  if (userExists) {
 
-}
+    res.status(400);
 
-const salt =
-await bcrypt.genSalt(10);
+    throw new Error(
+      "User already exists"
+    );
 
-const hashedPassword =
-await bcrypt.hash(
-password,
-salt
-);
+  }
 
-const user =
-await User.create({
+  const salt =
+    await bcrypt.genSalt(10);
 
-name,
-email,
-password:hashedPassword
+  const hashedPassword =
+    await bcrypt.hash(
+      password,
+      salt
+    );
 
-});
+  const user =
+    await User.create({
 
-res.status(201).json({
+      name,
+      email,
+      password: hashedPassword
 
-_id:user.id,
-name:user.name,
-email:user.email,
-token:generateToken(user._id)
+    });
 
-});
+  res.status(201).json({
+
+    _id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    token: generateToken(user._id),
+
+  });
 
 });
 
 const loginUser =
-asyncHandler(async(req,res)=>{
+asyncHandler(async (req, res) => {
 
-const {
+  const {
 
-email,
-password
+    email,
+    password
 
-}=req.body;
+  } = req.body;
 
-const user =
-await User.findOne({
-email
+  const user =
+    await User.findOne({
+      email
+    });
+
+  if (
+
+    user &&
+    (await bcrypt.compare(
+      password,
+      user.password
+    ))
+
+  ) {
+
+    res.status(200).json({
+
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id)
+
+    });
+
+  }
+
+  else {
+
+    res.status(400);
+
+    throw new Error(
+      "Invalid credentials"
+    );
+
+  }
+
 });
 
-if(
-user &&
-(await bcrypt.compare(
-password,
-user.password
-))
-){
+module.exports = {
 
-res.status(200)
-.json({
-
-_id:user.id,
-name:user.name,
-email:user.email,
-token:generateToken(user._id)
-
-});
-
-}
-
-else{
-
-res.status(400);
-
-throw new Error(
-"Invalid credentials"
-);
-
-}
-
-});
-
-module.exports={
-
-registerUser,
-loginUser
+  registerUser,
+  loginUser
 
 };

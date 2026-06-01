@@ -13,9 +13,15 @@ type:String,
 required:true
 },
 
-device:{
+category:{
 type:String,
 required:true
+},
+
+status: {
+  type: String,
+  enum: ["Open", "In Progress", "Resolved", "Closed"],
+  default: "Open",
 },
 
 description:{
