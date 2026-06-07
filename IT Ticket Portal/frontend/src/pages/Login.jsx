@@ -1,95 +1,153 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const Login=()=>{
+function Login() {
 
-const [formData,setFormData]=useState({
+  const [email, setEmail]
+  = useState("");
 
-email:"",
-password:""
+  const [password, setPassword]
+  = useState("");
 
-});
+  const navigate = useNavigate();
 
-const {email,password}=formData;
+  const handleSubmit = async (e) => {
 
-const onChange=(e)=>{
+    e.preventDefault();
 
-setFormData(prevState=>({
+    try {
 
-...prevState,
-[e.target.name]:e.target.value
+      const response = await axios.post(
 
-}));
+        "http://localhost:8000/api/users/login",
 
-};
+        {
+          email,
+          password,
+        },
 
-const onSubmit=(e)=>{
+        {
+          headers: {
+            "Content-Type":
+            "application/json",
+          },
+        }
 
-e.preventDefault();
+      );
 
-console.log(formData);
+      localStorage.setItem(
 
-};
+        "user",
 
-return(
+        JSON.stringify(response.data)
 
-<>
+      );
 
-<section>
+      navigate("/dashboard");
 
-<h1>Login</h1>
+    } catch (error) {
 
-<p>Login and start creating tickets</p>
+      console.log(error);
 
-</section>
+toast.error("Login failed");
+    }
 
-<section>
+  };
 
-<form onSubmit={onSubmit}>
+  return (
 
-<div>
+    <div className="auth-container">
 
-<input
-type="email"
-id="email"
-name="email"
-value={email}
-placeholder="Enter your email"
-onChange={onChange}
-/>
+      <div className="card auth-card">
 
-</div>
+        <h1
+          className="page-title"
+          style={{
+            fontSize:"42px",
+            marginBottom:"12px"
+          }}
+        >
 
-<br/>
+          Login
 
-<div>
+        </h1>
 
-<input
-type="password"
-id="password"
-name="password"
-value={password}
-placeholder="Enter password"
-onChange={onChange}
-/>
+        <p
 
-</div>
+          style={{
 
-<br/>
+            color:"#6b7280",
+            marginBottom:"30px",
+            fontSize:"16px"
 
-<button type="submit">
+          }}
 
-Login
+        >
 
-</button>
+          Login and start managing tickets.
 
-</form>
+        </p>
 
-</section>
+        <form onSubmit={handleSubmit}>
 
-</>
+          <input
 
-)
+            type="email"
+
+            placeholder="Enter your email"
+
+            className="input"
+
+            value={email}
+
+            onChange={(e)=>
+              setEmail(e.target.value)
+            }
+
+          />
+
+          <input
+
+            type="password"
+
+            placeholder="Enter your password"
+
+            className="input"
+
+            value={password}
+
+            onChange={(e)=>
+              setPassword(e.target.value)
+            }
+
+          />
+
+          <button
+
+            type="submit"
+
+            className="button"
+
+            style={{
+              width:"100%"
+            }}
+
+          >
+
+            Login
+
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  );
 
 }
 
-export default Login
+export default Login;

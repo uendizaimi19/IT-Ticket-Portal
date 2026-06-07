@@ -1,97 +1,105 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-import {
-FaSignInAlt,
-FaUser,
-FaSignOutAlt
-} from "react-icons/fa";
+function Navbar() {
 
-import {
-useSelector,
-useDispatch
-} from "react-redux";
+  const navigate = useNavigate();
 
-import {
-logoutUser
-} from "../store/slices/userSlice";
+  const user =
+  JSON.parse(localStorage.getItem("user"));
 
-function Navbar(){
+  const isAdmin =
+user?.role === "admin";
 
-const { user } = useSelector(
-(state)=>state.user
-);
+  const logout = ()=>{
 
-const dispatch = useDispatch();
+    localStorage.removeItem("user");
 
-function logout(){
+    navigate("/login");
 
-dispatch(logoutUser());
+  };
 
-}
+  return (
 
-return(
+    <nav>
 
-<nav>
+      <Link to="/">
+        Home
+      </Link>
 
-<Link to="/">Home</Link> |{" "}
+      {user && !isAdmin && (
 
-<Link to="/dashboard">
-Dashboard
-</Link> |{" "}
+  <>
+    <Link to="/dashboard">
+      Dashboard
+    </Link>
 
-<Link to="/create-ticket">
-Create Ticket
-</Link> |{" "}
+    <Link to="/create-ticket">
+      Create Ticket
+    </Link>
 
-<Link to="/mytickets">
-My Tickets
-</Link> |{" "}
-
-{user ? (
-
-<>
-
-<span>
-
-Welcome {user.name}
-
-</span>
-
-{" | "}
-
-<button onClick={logout}>
-
-<FaSignOutAlt />
-
-Logout
-
-</button>
-
-</>
-
-) : (
-
-<>
-
-<Link to="/login">
-
-<FaSignInAlt /> Login
-
-</Link> |{" "}
-
-<Link to="/register">
-
-<FaUser /> Register
-
-</Link>
-
-</>
+    <Link to="/mytickets">
+      My Tickets
+    </Link>
+  </>
 
 )}
 
-</nav>
+{user && isAdmin && (
 
-)
+  <>
+    <Link to="/alltickets">
+      All Tickets
+    </Link>
+  </>
+
+)}
+
+      {
+
+        user ? (
+
+          <>
+
+            <span>
+
+              Welcome
+              {" "}
+              {user.name}
+
+            </span>
+
+            <button
+              className="button"
+              onClick={logout}
+            >
+
+              Logout
+
+            </button>
+
+          </>
+
+        ) : (
+
+          <>
+
+            <Link to="/login">
+              Login
+            </Link>
+
+            <Link to="/register">
+              Register
+            </Link>
+
+          </>
+
+        )
+
+      }
+
+    </nav>
+
+  );
 
 }
 

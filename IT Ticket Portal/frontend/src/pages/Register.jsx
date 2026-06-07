@@ -1,148 +1,190 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setUser } from "../store/slices/userSlice";
+import axios from "axios";
+import { toast } from "react-toastify";
 
+function Register() {
 
-const Register = () => {
-const navigate = useNavigate();
-const dispatch = useDispatch();
-const [formData,setFormData]=useState({
+  const [name, setName] = useState("");
 
-name:"",
-email:"",
-password:"",
-password2:""
+  const [email, setEmail] = useState("");
 
-});
+  const [password, setPassword] = useState("");
 
-const {name,email,password,password2}=formData;
+  const [confirmPassword, setConfirmPassword]
+  = useState("");
 
-const onChange=(e)=>{
+  const navigate = useNavigate();
 
-setFormData(prevState=>({
+  const handleSubmit = async (e) => {
 
-...prevState,
-[e.target.name]:e.target.value
+    e.preventDefault();
 
-}));
+    if (password !== confirmPassword) {
 
-};
+toast.error("Registration failed");
+      return;
 
-const onSubmit=(e)=>{
+    }
 
-e.preventDefault();
+    try {
 
-if(password!==password2){
+      await axios.post(
 
-toast.error("Passwords do not match");
+        "http://localhost:8000/api/users/register",
 
-return;
+        {
+          name,
+          email,
+          password,
+        },
+
+        {
+          headers: {
+            "Content-Type":
+            "application/json",
+          },
+        }
+
+      );
+
+toast.success("Registration successful");
+
+      navigate("/login");
+
+    } catch (error) {
+
+      console.log(error);
+
+toast.error("Registration failed");
+    }
+
+  };
+
+  return (
+
+    <div className="auth-container">
+
+      <div className="card auth-card">
+
+        <h1
+          className="page-title"
+          style={{
+            fontSize:"42px",
+            marginBottom:"12px"
+          }}
+        >
+
+          Register
+
+        </h1>
+
+        <p
+
+          style={{
+
+            color:"#6b7280",
+            marginBottom:"30px",
+            fontSize:"16px"
+
+          }}
+
+        >
+
+          Create your IT portal account.
+
+        </p>
+
+        <form onSubmit={handleSubmit}>
+
+          <input
+
+            type="text"
+
+            placeholder="Enter your name"
+
+            className="input"
+
+            value={name}
+
+            onChange={(e)=>
+              setName(e.target.value)
+            }
+
+          />
+
+          <input
+
+            type="email"
+
+            placeholder="Enter your email"
+
+            className="input"
+
+            value={email}
+
+            onChange={(e)=>
+              setEmail(e.target.value)
+            }
+
+          />
+
+          <input
+
+            type="password"
+
+            placeholder="Enter your password"
+
+            className="input"
+
+            value={password}
+
+            onChange={(e)=>
+              setPassword(e.target.value)
+            }
+
+          />
+
+          <input
+
+            type="password"
+
+            placeholder="Confirm password"
+
+            className="input"
+
+            value={confirmPassword}
+
+            onChange={(e)=>
+              setConfirmPassword(e.target.value)
+            }
+
+          />
+
+          <button
+
+            type="submit"
+
+            className="button"
+
+            style={{
+              width:"100%"
+            }}
+
+          >
+
+            Create Account
+
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  );
 
 }
 
-dispatch(setUser({
-
-name,
-email
-
-}));
-
-toast.success("Registration successful!");
-navigate("/login");
-};
-
-return(
-
-<>
-
-<section>
-
-<h1>Register</h1>
-
-<p>Please create an account</p>
-
-</section>
-
-<section>
-
-<form onSubmit={onSubmit}>
-
-<div>
-
-<input
-type="text"
-id="name"
-name="name"
-value={name}
-placeholder="Enter your name"
-onChange={onChange}
-/>
-
-</div>
-
-<br/>
-
-<div>
-
-<input
-type="email"
-id="email"
-name="email"
-value={email}
-placeholder="Enter your email"
-onChange={onChange}
-/>
-
-</div>
-
-<br/>
-
-<div>
-
-<input
-type="password"
-id="password"
-name="password"
-value={password}
-placeholder="Enter password"
-onChange={onChange}
-/>
-
-</div>
-
-<br/>
-
-<div>
-
-<input
-type="password"
-id="password2"
-name="password2"
-value={password2}
-placeholder="Confirm password"
-onChange={onChange}
-/>
-
-</div>
-
-<br/>
-
-<button type="submit">
-
-Register
-
-</button>
-
-</form>
-
-</section>
-
-</>
-
-)
-
-}
-
-export default Register
+export default Register;

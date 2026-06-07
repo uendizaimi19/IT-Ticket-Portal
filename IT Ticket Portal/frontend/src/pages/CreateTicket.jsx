@@ -1,97 +1,239 @@
 import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"
 
-function CreateTicket({tickets,setTickets}) {
+function CreateTicket() {
 
-const [title, setTitle] = useState("");
-const [device, setDevice] = useState("");
-const [description, setDescription] = useState("");
-const [priority, setPriority] = useState("Low");
+  const [title, setTitle] = useState("");
 
-function handleSubmit(e){
+  const [category, setCategory] = useState("");
 
-e.preventDefault();
+  const [description, setDescription]
+  = useState("");
 
-const newTicket = {
+  const [priority, setPriority]
+  = useState("Low");
 
-title,
-device,
-description,
-priority,
-status:"Open"
+  const navigate = useNavigate();
 
-};
+  const handleSubmit = async (e) => {
 
-setTickets([...tickets,newTicket]);
+    e.preventDefault();
 
-setTitle("");
-setDevice("Laptop");
-setDescription("");
-setPriority("Low");
+    try {
 
-}
+      const user = JSON.parse(
+        localStorage.getItem("user")
+      );
 
-return(
+      const config = {
 
-<div>
+        headers: {
 
-<h2>Create Ticket</h2>
+          Authorization:
+          `Bearer ${user.token}`,
 
-<form onSubmit={handleSubmit}>
+          "Content-Type":
+          "application/json"
 
-<input
-type="text"
-placeholder="Ticket Title"
-value={title}
-onChange={(e)=>setTitle(e.target.value)}
-/>
+        }
 
-<br/><br/>
+      };
 
-<select
-value={device}
-onChange={(e)=>setDevice(e.target.value)}
+      await axios.post(
+
+        "http://localhost:8000/api/tickets",
+
+        {
+          title,
+          category,
+          description,
+          priority
+        },
+
+        config
+
+      );
+
+    toast.success("Ticket created successfully")
+      navigate("/mytickets");
+
+    } catch (error) {
+
+      console.log(error);
+
+     toast.error("Failed to create ticket")
+    }
+
+  };
+
+  return (
+
+    <div className="page-container">
+
+      <div
+
+        className="card"
+
+        style={{
+
+          maxWidth:"700px",
+          margin:"40px auto"
+
+        }}
+
+      >
+
+        <h1 className="page-title">
+          Create Ticket
+        </h1>
+
+        <form onSubmit={handleSubmit}>
+
+          <input
+
+            type="text"
+
+            placeholder="Ticket title"
+
+            className="input"
+
+            value={title}
+
+            onChange={(e)=>
+              setTitle(e.target.value)
+            }
+
+          />
+
+          <select
+  className="select"
+  value={category}
+  onChange={(e) =>
+    setCategory(e.target.value)
+  }
 >
 
-<option>Laptop</option>
-<option>Desktop</option>
-<option>Printer</option>
-<option>Network</option>
-<option>Software</option>
+  <option value="">
+    Select Category
+  </option>
+
+  <option value="Internet Connectivity">
+    Internet Connectivity
+  </option>
+
+  <option value="Wi-Fi">
+    Wi-Fi
+  </option>
+
+  <option value="VPN">
+    VPN
+  </option>
+
+  <option value="Computer">
+    Computer
+  </option>
+
+  <option value="Printer">
+    Printer
+  </option>
+
+  <option value="Phone">
+    Phone
+  </option>
+
+  <option value="Password Reset">
+    Password Reset
+  </option>
+
+  <option value="Account Locked">
+    Account Locked
+  </option>
+
+  <option value="Access Permission">
+    Access Permission
+  </option>
+
+  <option value="Software Installation">
+    Software Installation
+  </option>
+
+  <option value="Software Configuration">
+    Software Configuration
+  </option>
+
+  <option value="Software Update">
+    Software Update
+  </option>
+
+  <option value="Other">
+    Other
+  </option>
 
 </select>
 
-<br/><br/>
+          <textarea
 
-<textarea
-placeholder="Describe issue"
-value={description}
-onChange={(e)=>setDescription(e.target.value)}
-/>
+            placeholder="Describe the issue"
 
-<br/><br/>
+            className="textarea"
 
-<select
-value={priority}
-onChange={(e)=>setPriority(e.target.value)}
->
+            value={description}
 
-<option>Low</option>
-<option>Medium</option>
-<option>High</option>
-<option>Critical</option>
+            onChange={(e)=>
+              setDescription(e.target.value)
+            }
 
-</select>
+          />
 
-<br/><br/>
+          <select
 
-<button>Create Ticket</button>
+            className="select"
 
-</form>
+            value={priority}
 
-</div>
+            onChange={(e)=>
+              setPriority(e.target.value)
+            }
 
-)
+          >
+
+            <option value="Low">
+              Low
+            </option>
+
+            <option value="Medium">
+              Medium
+            </option>
+
+            <option value="High">
+              High
+            </option>
+
+            <option value="Critical">
+              Critical
+            </option>
+
+          </select>
+
+          <button
+            type="submit"
+            className="button"
+          >
+
+            Create Ticket
+
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  );
 
 }
 
-export default CreateTicket
+export default CreateTicket;
